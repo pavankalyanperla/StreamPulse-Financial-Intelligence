@@ -100,6 +100,21 @@ services:
       - streampulse-network
     restart: on-failure
 
+  anomaly:
+    build:
+      context: ./services/anomaly
+    container_name: streampulse-anomaly
+    ports:
+      - "8003:8003"
+    depends_on:
+      - kafka
+      - ingestion
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    networks:
+      - streampulse-network
+    restart: on-failure
+
 networks:
   streampulse-network:
     driver: bridge
