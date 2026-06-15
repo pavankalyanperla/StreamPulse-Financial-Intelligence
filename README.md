@@ -17,6 +17,7 @@
 | Anomaly Detection | Python FastAPI + Isolation Forest | 8003 | Scores ticks for anomalies → alerts topic |
 | Price Forecasting | Python FastAPI + Keras LSTM | 8002 | Predicts next close price → ml-forecasts topic |
 | News Sentiment | Python FastAPI + TF-IDF + LR | 8004 | RSS news sentiment per symbol → sentiment_scores table |
+| Alert Service | ASP.NET Core 10 Worker + API | 5200 | Consumes alerts topic → TimescaleDB + MailKit email |
 | Apache Kafka | Confluent 7.6 | 9092 | Central event backbone |
 | TimescaleDB | PostgreSQL + Timescale | 5432 | Time-series OHLCV storage |
 | Redis | Redis 7 | 6380 | Cache (Day 7+) |
@@ -36,7 +37,7 @@ TimescaleDB stores all OHLCV candle data in the `ohlcv_candles` hypertable, part
 | raw-ticks | Ingestion | Stream Processor, Anomaly Detection | Raw price tick per symbol |
 | ohlcv-aggregated | Stream Processor | Forecasting, Gateway (future) | 1-min OHLCV candles |
 | ml-forecasts | Forecasting | Gateway (future) | LSTM next-close predictions |
-| alerts | Anomaly Detection | Alert Service (future), Gateway | Anomaly type + severity |
+| alerts | Anomaly Detection | Alert Service, Gateway (future) | Anomaly type + severity |
 
 ## Build Progress
 - ✅ Day 1 — Infrastructure (Zookeeper, Kafka, TimescaleDB, Redis, Kafka UI)
@@ -46,6 +47,7 @@ TimescaleDB stores all OHLCV candle data in the `ohlcv_candles` hypertable, part
 - ✅ Day 5 — Anomaly Detection Service (Python FastAPI + Isolation Forest, alerts topic)
 - ✅ Day 6 — LSTM Price Forecasting Service (Keras LSTM, ml-forecasts topic, historical warm-start)
 - ✅ Day 7 — News Sentiment Service (TF-IDF + Logistic Regression, Yahoo Finance RSS, sentiment_scores hypertable)
+- ✅ Day 8 — Alert Service (ASP.NET Core 10, MailKit, alert_records hypertable, REST query API)
 
 ## Status
-🚧 Day 7 complete — News sentiment scoring from Yahoo Finance RSS with TF-IDF classifier
+🚧 Day 8 complete — Alert Service consuming Kafka alerts topic, persisting to TimescaleDB, optional MailKit email for HIGH alerts

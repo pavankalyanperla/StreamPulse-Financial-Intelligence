@@ -148,6 +148,24 @@ services:
       - streampulse-network
     restart: on-failure
 
+  alert:
+    build:
+      context: ./services/alert
+    container_name: streampulse-alert
+    ports:
+      - "5200:5200"
+    depends_on:
+      - kafka
+      - timescaledb
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      KafkaSettings__BootstrapServers: kafka:29092
+      KafkaSettings__ConsumerGroup: alert-group
+      DatabaseSettings__ConnectionString: "Host=timescaledb;Port=5432;Database=streampulse_db;Username=streampulse;Password=StreamPulse@2026"
+    networks:
+      - streampulse-network
+    restart: on-failure
+
 networks:
   streampulse-network:
     driver: bridge

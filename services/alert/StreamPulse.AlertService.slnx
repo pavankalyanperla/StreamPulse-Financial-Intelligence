@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="StreamPulse.AlertService.Application/StreamPulse.AlertService.Application.csproj" />
+  <Project Path="StreamPulse.AlertService.Infrastructure/StreamPulse.AlertService.Infrastructure.csproj" />
+  <Project Path="StreamPulse.AlertService/StreamPulse.AlertService.csproj" />
+</Solution>
