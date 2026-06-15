@@ -133,6 +133,21 @@ services:
       - streampulse-network
     restart: on-failure
 
+  sentiment:
+    build:
+      context: ./services/sentiment
+    container_name: streampulse-sentiment
+    ports:
+      - "8004:8004"
+    depends_on:
+      - timescaledb
+    environment:
+      DATABASE_URL: "postgresql://streampulse:StreamPulse%402026@timescaledb:5432/streampulse_db"
+      SYMBOLS: AAPL,GOOGL,MSFT,INFY,TCS
+    networks:
+      - streampulse-network
+    restart: on-failure
+
 networks:
   streampulse-network:
     driver: bridge
