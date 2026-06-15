@@ -15,9 +15,10 @@
 | Data Ingestion | Python FastAPI | 8001 | Simulates live stock ticks for 5 symbols → raw-ticks topic |
 | Stream Processor | ASP.NET Core 10 Worker | 5100 | Aggregates OHLCV candles → ohlcv-aggregated topic + TimescaleDB |
 | Anomaly Detection | Python FastAPI + Isolation Forest | 8003 | Scores ticks for anomalies → alerts topic |
+| Price Forecasting | Python FastAPI + Keras LSTM | 8002 | Predicts next close price → ml-forecasts topic |
 | Apache Kafka | Confluent 7.6 | 9092 | Central event backbone |
 | TimescaleDB | PostgreSQL + Timescale | 5432 | Time-series OHLCV storage |
-| Redis | Redis 7 | 6380 | Cache (Day 6+) |
+| Redis | Redis 7 | 6380 | Cache (Day 7+) |
 | Kafka UI | provectuslabs | 8081 | Topic browser |
 
 ## Database
@@ -27,12 +28,22 @@ TimescaleDB stores all OHLCV candle data in the `ohlcv_candles` hypertable, part
 |---|---|---|---|
 | ohlcv_candles | Hypertable | candle_time | 1-min OHLCV candles per symbol |
 
+## Kafka Topics
+
+| Topic | Producer | Consumers | Data |
+|---|---|---|---|
+| raw-ticks | Ingestion | Stream Processor, Anomaly Detection | Raw price tick per symbol |
+| ohlcv-aggregated | Stream Processor | Forecasting, Gateway (future) | 1-min OHLCV candles |
+| ml-forecasts | Forecasting | Gateway (future) | LSTM next-close predictions |
+| alerts | Anomaly Detection | Alert Service (future), Gateway | Anomaly type + severity |
+
 ## Build Progress
 - ✅ Day 1 — Infrastructure (Zookeeper, Kafka, TimescaleDB, Redis, Kafka UI)
 - ✅ Day 2 — Data Ingestion Service (Python FastAPI, 5 symbols, raw-ticks topic)
 - ✅ Day 3 — Stream Processor (ASP.NET Core 10 Worker, OHLCV aggregation, ohlcv-aggregated topic)
 - ✅ Day 4 — TimescaleDB Persistence (Npgsql, ohlcv_candles hypertable, upsert on flush)
 - ✅ Day 5 — Anomaly Detection Service (Python FastAPI + Isolation Forest, alerts topic)
+- ✅ Day 6 — LSTM Price Forecasting Service (Keras LSTM, ml-forecasts topic, historical warm-start)
 
 ## Status
-🚧 Day 5 complete — Anomaly detection scoring live ticks via Isolation Forest
+🚧 Day 6 complete — LSTM forecasting next close price from OHLCV candles

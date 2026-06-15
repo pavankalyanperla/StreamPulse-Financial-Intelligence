@@ -115,6 +115,24 @@ services:
       - streampulse-network
     restart: on-failure
 
+  forecasting:
+    build:
+      context: ./services/forecasting
+    container_name: streampulse-forecasting
+    ports:
+      - "8002:8002"
+    depends_on:
+      - kafka
+      - processor
+      - timescaledb
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      DATABASE_URL: "postgresql://streampulse:StreamPulse%402026@timescaledb:5432/streampulse_db"
+      SYMBOLS: AAPL,GOOGL,MSFT,INFY,TCS
+    networks:
+      - streampulse-network
+    restart: on-failure
+
 networks:
   streampulse-network:
     driver: bridge
