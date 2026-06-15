@@ -95,7 +95,7 @@ services:
       DOTNET_ENVIRONMENT: Docker
       KafkaSettings__BootstrapServers: kafka:29092
       KafkaSettings__ConsumerGroup: processor-group
-      DatabaseSettings__ConnectionString: "Host=timescaledb;Port=5432;Database=streampulse_db;Username=streampulse;Password=StreamPulse@2026"
+      DatabaseSettings__ConnectionString: "${DB_CONNECTION_TIMESCALE}"
     networks:
       - streampulse-network
     restart: on-failure
@@ -144,7 +144,7 @@ services:
     environment:
       DATABASE_URL: "postgresql://streampulse:StreamPulse%402026@timescaledb:5432/streampulse_db"
       SYMBOLS: AAPL,GOOGL,MSFT,INFY,TCS
-      NEWSAPI_KEY: "39c73eb7f1224646804a796e3ef19ea1"
+      NEWSAPI_KEY: "${NEWSAPI_KEY}"
     networks:
       - streampulse-network
     restart: on-failure
@@ -162,12 +162,12 @@ services:
       ASPNETCORE_ENVIRONMENT: Docker
       KafkaSettings__BootstrapServers: kafka:29092
       KafkaSettings__ConsumerGroup: alert-group
-      DatabaseSettings__ConnectionString: "Host=timescaledb;Port=5432;Database=streampulse_db;Username=streampulse;Password=StreamPulse@2026"
+      DatabaseSettings__ConnectionString: "${DB_CONNECTION_TIMESCALE}"
       EmailSettings__SmtpHost: smtp.gmail.com
       EmailSettings__SmtpPort: 587
-      EmailSettings__SenderEmail: "Kalyanpavan7578@gmail.com"
-      EmailSettings__SenderPassword: "kmmf rngz mpjd olrd"
-      EmailSettings__RecipientEmail: "Kalyanpavan7578@gmail.com"
+      EmailSettings__SenderEmail: "${EMAIL_SENDER}"
+      EmailSettings__SenderPassword: "${EMAIL_PASSWORD}"
+      EmailSettings__RecipientEmail: "${EMAIL_RECIPIENT}"
     networks:
       - streampulse-network
     restart: on-failure
