@@ -42,3 +42,7 @@ desktop.ini
 .idea/
 *.swp
 *.swo
+
+# ASP.NET Core config files with secrets — use *.Example.json as templates
+**/appsettings.json
+**/appsettings.Docker.json

@@ -48,7 +48,7 @@ TimescaleDB stores all OHLCV candle data in the `ohlcv_candles` hypertable, part
 - ✅ Day 5 — Anomaly Detection Service (Python FastAPI + Isolation Forest, alerts topic)
 - ✅ Day 6 — LSTM Price Forecasting Service (Keras LSTM, ml-forecasts topic, historical warm-start)
 - ✅ Day 7 — News Sentiment Service (TF-IDF + Logistic Regression, Yahoo Finance RSS, sentiment_scores hypertable)
-- ✅ Day 8 — Alert Service (ASP.NET Core 10, MailKit, alert_records hypertable, REST query API)
+- ✅ Day 8 — Alert Service (ASP.NET Core 10, MailKit, alert_records hypertable, REST query API) — HIGH severity anomaly alerts trigger real email notifications via Gmail SMTP (MailKit StartTls)
 - ✅ Day 9 — API Gateway + SignalR Hub (Ocelot proxy, SignalR WebSocket hub, Redis tick cache, Kafka consumers for ml-forecasts + alerts + raw-ticks)
 
 ## Status

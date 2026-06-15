@@ -163,6 +163,11 @@ services:
       KafkaSettings__BootstrapServers: kafka:29092
       KafkaSettings__ConsumerGroup: alert-group
       DatabaseSettings__ConnectionString: "Host=timescaledb;Port=5432;Database=streampulse_db;Username=streampulse;Password=StreamPulse@2026"
+      EmailSettings__SmtpHost: smtp.gmail.com
+      EmailSettings__SmtpPort: 587
+      EmailSettings__SenderEmail: "Kalyanpavan7578@gmail.com"
+      EmailSettings__SenderPassword: "kmmf rngz mpjd olrd"
+      EmailSettings__RecipientEmail: "Kalyanpavan7578@gmail.com"
     networks:
       - streampulse-network
     restart: on-failure

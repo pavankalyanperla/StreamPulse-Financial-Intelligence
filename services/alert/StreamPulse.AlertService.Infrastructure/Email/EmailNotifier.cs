@@ -30,6 +30,8 @@ public class EmailNotifier : IEmailNotifier
 
         try
         {
+            _logger.LogInformation("[EMAIL] Sending HIGH alert email for {Symbol}...", alert.Symbol);
+
             var message = new MimeMessage();
             message.From.Add(MailboxAddress.Parse(_settings.SenderEmail));
             message.To.Add(MailboxAddress.Parse(_settings.RecipientEmail));
@@ -59,7 +61,7 @@ public class EmailNotifier : IEmailNotifier
             await smtp.SendAsync(message, ct);
             await smtp.DisconnectAsync(true, ct);
 
-            _logger.LogInformation("[EMAIL] Sent HIGH alert email for {Symbol}", alert.Symbol);
+            _logger.LogInformation("[EMAIL] Email sent successfully for {Symbol}", alert.Symbol);
         }
         catch (Exception ex)
         {
