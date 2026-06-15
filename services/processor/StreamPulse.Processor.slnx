@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="StreamPulse.Processor.Application/StreamPulse.Processor.Application.csproj" />
+  <Project Path="StreamPulse.Processor.Infrastructure/StreamPulse.Processor.Infrastructure.csproj" />
+  <Project Path="StreamPulse.Processor/StreamPulse.Processor.csproj" />
+</Solution>

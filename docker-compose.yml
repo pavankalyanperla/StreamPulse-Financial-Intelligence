@@ -80,6 +80,24 @@ services:
       - streampulse-network
     restart: on-failure
 
+  processor:
+    build:
+      context: ./services/processor
+    container_name: streampulse-processor
+    ports:
+      - "5100:5100"
+    depends_on:
+      - kafka
+      - ingestion
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      DOTNET_ENVIRONMENT: Docker
+      KafkaSettings__BootstrapServers: kafka:29092
+      KafkaSettings__ConsumerGroup: processor-group
+    networks:
+      - streampulse-network
+    restart: on-failure
+
 networks:
   streampulse-network:
     driver: bridge
