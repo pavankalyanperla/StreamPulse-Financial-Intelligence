@@ -5,7 +5,6 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Optional
 
-import feedparser
 import httpx
 import numpy as np
 import psycopg2
@@ -23,6 +22,7 @@ DATABASE_URL = os.getenv(
     "postgresql://streampulse:StreamPulse%402026@localhost:5432/streampulse_db",
 )
 SYMBOLS = [s.strip() for s in os.getenv("SYMBOLS", "AAPL,GOOGL,MSFT,INFY,TCS").split(",")]
+NEWSAPI_KEY = os.environ.get("NEWSAPI_KEY", "")
 REFRESH_INTERVAL = 300
 
 
@@ -125,35 +125,58 @@ class SentimentClassifier:
         return shifted, label
 
 
-# ── RSS Fetcher ───────────────────────────────────────────────────────────────
+# ── News Fetcher ──────────────────────────────────────────────────────────────
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _synthetic_headlines(symbol: str) -> list[dict]:
+    return [
+        {"headline": f"{symbol} trading within normal range", "source": "synthetic", "published_at": _now_iso()},
+        {"headline": f"{symbol} market activity observed", "source": "synthetic", "published_at": _now_iso()},
+        {"headline": f"Analysts watching {symbol} closely", "source": "synthetic", "published_at": _now_iso()},
+    ]
+
+
 def fetch_headlines(symbol: str) -> list[dict]:
-    url = f"https://feeds.finance.yahoo.com/rss/2.0/headline?s={symbol}&region=US&lang=en-US"
+    if not NEWSAPI_KEY:
+        logger.warning("[SENTIMENT] %s — NEWSAPI_KEY not set, using synthetic fallback", symbol)
+        return _synthetic_headlines(symbol)
+
     try:
-        resp = httpx.get(url, timeout=10, follow_redirects=True)
-        feed = feedparser.parse(resp.text)
-        entries = feed.entries
-        if not entries:
-            raise ValueError("empty feed")
-        results = []
-        for e in entries[:10]:
-            results.append({
-                "headline": e.get("title", f"{symbol} market update"),
-                "source": e.get("source", {}).get("title", "Yahoo Finance") if isinstance(e.get("source"), dict) else "Yahoo Finance",
-                "published_at": e.get("published", _now_iso()),
-            })
-        return results
-    except Exception as exc:
-        logger.warning("[SENTIMENT] RSS fetch failed for %s: %s — using synthetic headlines", symbol, exc)
-        return [
-            {"headline": f"{symbol} trading within normal range", "source": "synthetic", "published_at": _now_iso()},
-            {"headline": f"{symbol} market activity observed", "source": "synthetic", "published_at": _now_iso()},
-            {"headline": f"Analysts watching {symbol} closely", "source": "synthetic", "published_at": _now_iso()},
+        resp = httpx.get(
+            "https://newsapi.org/v2/everything",
+            params={
+                "q": symbol,
+                "language": "en",
+                "sortBy": "publishedAt",
+                "pageSize": 5,
+                "apiKey": NEWSAPI_KEY,
+            },
+            timeout=10,
+        )
+        if resp.status_code != 200:
+            raise ValueError(f"HTTP {resp.status_code}")
+
+        articles = resp.json().get("articles", [])
+        if not articles:
+            raise ValueError("empty articles list")
+
+        results = [
+            {
+                "headline": a.get("title") or f"{symbol} market update",
+                "source": (a.get("source") or {}).get("name", "NewsAPI"),
+                "published_at": a.get("publishedAt", _now_iso()),
+            }
+            for a in articles
         ]
+        logger.info("[SENTIMENT] %s — fetched %d real headlines from NewsAPI", symbol, len(results))
+        return results
+
+    except Exception as exc:
+        logger.warning("[SENTIMENT] %s — NewsAPI failed (%s), using synthetic fallback", symbol, exc)
+        return _synthetic_headlines(symbol)
 
 
 # ── Database ──────────────────────────────────────────────────────────────────

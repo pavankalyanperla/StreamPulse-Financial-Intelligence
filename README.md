@@ -3,7 +3,7 @@
 > Event-driven financial analytics platform processing live stock ticks through Apache Kafka, with Python ML microservices for price forecasting and anomaly detection, SignalR WebSocket delivery to an Angular 21 dashboard, deployed on AWS EC2 with GitHub Actions CI/CD.
 
 ## Tech Stack
-`Apache Kafka` `ASP.NET Core 10` `Angular 21 + PrimeNG Aura` `Python FastAPI` `TimescaleDB` `Redis` `SignalR WebSockets` `Docker` `AWS EC2` `GitHub Actions`
+`Apache Kafka` `ASP.NET Core 10` `Angular 21 + PrimeNG Aura` `Python FastAPI` `TimescaleDB` `Redis` `SignalR WebSockets` `NewsAPI` `Docker` `AWS EC2` `GitHub Actions`
 
 ## Architecture
 12 services across .NET, Python, and Angular communicating via 4 Kafka topics. See /docker/architecture.md for full service map.
@@ -16,7 +16,7 @@
 | Stream Processor | ASP.NET Core 10 Worker | 5100 | Aggregates OHLCV candles → ohlcv-aggregated topic + TimescaleDB |
 | Anomaly Detection | Python FastAPI + Isolation Forest | 8003 | Scores ticks for anomalies → alerts topic |
 | Price Forecasting | Python FastAPI + Keras LSTM | 8002 | Predicts next close price → ml-forecasts topic |
-| News Sentiment | Python FastAPI + TF-IDF + LR | 8004 | RSS news sentiment per symbol → sentiment_scores table |
+| News Sentiment | Python FastAPI + TF-IDF + LR | 8004 | NewsAPI real headlines + TF-IDF sentiment → sentiment_scores table |
 | Alert Service | ASP.NET Core 10 Worker + API | 5200 | Consumes alerts topic → TimescaleDB + MailKit email |
 | Apache Kafka | Confluent 7.6 | 9092 | Central event backbone |
 | TimescaleDB | PostgreSQL + Timescale | 5432 | Time-series OHLCV storage |

@@ -144,6 +144,7 @@ services:
     environment:
       DATABASE_URL: "postgresql://streampulse:StreamPulse%402026@timescaledb:5432/streampulse_db"
       SYMBOLS: AAPL,GOOGL,MSFT,INFY,TCS
+      NEWSAPI_KEY: "39c73eb7f1224646804a796e3ef19ea1"
     networks:
       - streampulse-network
     restart: on-failure
