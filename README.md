@@ -18,9 +18,10 @@
 | Price Forecasting | Python FastAPI + Keras LSTM | 8002 | Predicts next close price → ml-forecasts topic |
 | News Sentiment | Python FastAPI + TF-IDF + LR | 8004 | NewsAPI real headlines + TF-IDF sentiment → sentiment_scores table |
 | Alert Service | ASP.NET Core 10 Worker + API | 5200 | Consumes alerts topic → TimescaleDB + MailKit email |
+| API Gateway | ASP.NET Core 10 + Ocelot + SignalR | 5000 | Ocelot proxy + SignalR WebSocket hub + Redis tick cache |
 | Apache Kafka | Confluent 7.6 | 9092 | Central event backbone |
 | TimescaleDB | PostgreSQL + Timescale | 5432 | Time-series OHLCV storage |
-| Redis | Redis 7 | 6380 | Cache (Day 7+) |
+| Redis | Redis 7 | 6380 | Tick cache (60s TTL per symbol) |
 | Kafka UI | provectuslabs | 8081 | Topic browser |
 
 ## Database
@@ -48,6 +49,7 @@ TimescaleDB stores all OHLCV candle data in the `ohlcv_candles` hypertable, part
 - ✅ Day 6 — LSTM Price Forecasting Service (Keras LSTM, ml-forecasts topic, historical warm-start)
 - ✅ Day 7 — News Sentiment Service (TF-IDF + Logistic Regression, Yahoo Finance RSS, sentiment_scores hypertable)
 - ✅ Day 8 — Alert Service (ASP.NET Core 10, MailKit, alert_records hypertable, REST query API)
+- ✅ Day 9 — API Gateway + SignalR Hub (Ocelot proxy, SignalR WebSocket hub, Redis tick cache, Kafka consumers for ml-forecasts + alerts + raw-ticks)
 
 ## Status
-🚧 Day 8 complete — Alert Service consuming Kafka alerts topic, persisting to TimescaleDB, optional MailKit email for HIGH alerts
+🚧 Day 9 complete — API Gateway with Ocelot routing, SignalR real-time push hub, Redis 60s tick cache

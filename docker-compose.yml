@@ -167,6 +167,28 @@ services:
       - streampulse-network
     restart: on-failure
 
+  gateway:
+    build:
+      context: ./gateway
+    container_name: streampulse-gateway
+    ports:
+      - "5000:5000"
+    depends_on:
+      - kafka
+      - redis
+      - alert
+      - anomaly
+      - sentiment
+      - forecasting
+      - ingestion
+    environment:
+      ASPNETCORE_ENVIRONMENT: Docker
+      KafkaSettings__BootstrapServers: kafka:29092
+      RedisSettings__ConnectionString: "streampulse-redis:6379"
+    networks:
+      - streampulse-network
+    restart: on-failure
+
 networks:
   streampulse-network:
     driver: bridge

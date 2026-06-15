@@ -1,0 +1,6 @@
+@StreamPulse.Gateway_HostAddress = http://localhost:5046
+
+GET {{StreamPulse.Gateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

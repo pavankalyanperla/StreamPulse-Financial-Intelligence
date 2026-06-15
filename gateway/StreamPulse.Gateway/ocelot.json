@@ -1,0 +1,49 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/alerts/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "streampulse-alert", "Port": 5200 }],
+      "UpstreamPathTemplate": "/api/alerts/{everything}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/alerts",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "streampulse-alert", "Port": 5200 }],
+      "UpstreamPathTemplate": "/api/alerts",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/anomaly/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "streampulse-anomaly", "Port": 8003 }],
+      "UpstreamPathTemplate": "/api/anomaly/{everything}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/sentiment/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "streampulse-sentiment", "Port": 8004 }],
+      "UpstreamPathTemplate": "/api/sentiment/{everything}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/forecast/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "streampulse-forecasting", "Port": 8002 }],
+      "UpstreamPathTemplate": "/api/forecasts/{everything}",
+      "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/ticks/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "streampulse-ingestion", "Port": 8001 }],
+      "UpstreamPathTemplate": "/api/ingestion/{everything}",
+      "UpstreamHttpMethod": [ "GET" ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:5000"
+  }
+}

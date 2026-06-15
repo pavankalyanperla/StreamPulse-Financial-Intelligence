@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
+    <PackageReference Include="Ocelot" Version="24.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="ocelot.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StreamPulse.Gateway.Application\StreamPulse.Gateway.Application.csproj" />
+    <ProjectReference Include="..\StreamPulse.Gateway.Infrastructure\StreamPulse.Gateway.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
