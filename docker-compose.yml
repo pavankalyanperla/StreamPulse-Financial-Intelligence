@@ -89,11 +89,13 @@ services:
     depends_on:
       - kafka
       - ingestion
+      - timescaledb
     environment:
       ASPNETCORE_ENVIRONMENT: Docker
       DOTNET_ENVIRONMENT: Docker
       KafkaSettings__BootstrapServers: kafka:29092
       KafkaSettings__ConsumerGroup: processor-group
+      DatabaseSettings__ConnectionString: "Host=timescaledb;Port=5432;Database=streampulse_db;Username=streampulse;Password=StreamPulse@2026"
     networks:
       - streampulse-network
     restart: on-failure

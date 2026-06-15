@@ -12,6 +12,7 @@ public sealed class KafkaConsumerService : IKafkaConsumerService
     private readonly ILogger<KafkaConsumerService> _logger;
     private readonly ICandleAggregator _aggregator;
     private readonly IKafkaProducerService _producer;
+    private readonly ICandleRepository _repository;
     private readonly string _bootstrapServers;
     private readonly string _consumerGroup;
 
@@ -24,11 +25,13 @@ public sealed class KafkaConsumerService : IKafkaConsumerService
         ILogger<KafkaConsumerService> logger,
         IConfiguration configuration,
         ICandleAggregator aggregator,
-        IKafkaProducerService producer)
+        IKafkaProducerService producer,
+        ICandleRepository repository)
     {
         _logger = logger;
         _aggregator = aggregator;
         _producer = producer;
+        _repository = repository;
         _bootstrapServers = configuration["KafkaSettings:BootstrapServers"] ?? "localhost:9092";
         _consumerGroup = configuration["KafkaSettings:ConsumerGroup"] ?? "processor-group";
     }
@@ -82,6 +85,15 @@ public sealed class KafkaConsumerService : IKafkaConsumerService
                             candle.TotalVolume, candle.TickCount);
 
                         await _producer.PublishCandleAsync(candle, cancellationToken);
+
+                        try
+                        {
+                            await _repository.SaveCandleAsync(candle, cancellationToken);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "[DB] Failed to save {Symbol} candle — Kafka publish unaffected", candle.Symbol);
+                        }
                     }
                     lastFlush = DateTimeOffset.UtcNow;
                 }
