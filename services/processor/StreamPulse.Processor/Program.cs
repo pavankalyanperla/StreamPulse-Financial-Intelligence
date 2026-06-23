@@ -1,3 +1,4 @@
+using Prometheus;
 using StreamPulse.Processor;
 using StreamPulse.Processor.Application.Interfaces;
 using StreamPulse.Processor.Application.Services;
@@ -5,7 +6,9 @@ using StreamPulse.Processor.Application.Settings;
 using StreamPulse.Processor.Infrastructure.Database;
 using StreamPulse.Processor.Infrastructure.Kafka;
 
-var builder = Host.CreateApplicationBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
+
+builder.WebHost.UseUrls("http://0.0.0.0:5100");
 
 var dbSettings = builder.Configuration
     .GetSection("DatabaseSettings")
@@ -19,10 +22,20 @@ builder.Services.AddSingleton<IKafkaConsumerService, KafkaConsumerService>();
 builder.Services.AddSingleton<DatabaseInitializer>();
 builder.Services.AddHostedService<Worker>();
 
-var host = builder.Build();
+var app = builder.Build();
 
-await host.Services
+app.UseHttpMetrics();
+
+await app.Services
     .GetRequiredService<DatabaseInitializer>()
     .InitializeAsync(CancellationToken.None);
 
-host.Run();
+app.MapMetrics();
+
+app.MapGet("/candles/{symbol}", async (string symbol, int limit, ICandleRepository repo, CancellationToken ct) =>
+{
+    var candles = await repo.GetRecentCandlesAsync(symbol.ToUpper(), limit <= 0 ? 60 : limit, ct);
+    return Results.Ok(candles);
+});
+
+await app.RunAsync();

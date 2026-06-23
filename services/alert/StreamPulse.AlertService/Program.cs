@@ -1,3 +1,4 @@
+using Prometheus;
 using StreamPulse.AlertService;
 using StreamPulse.AlertService.Application.Interfaces;
 using StreamPulse.AlertService.Application.Settings;
@@ -27,8 +28,13 @@ builder.Services.AddHostedService<Worker>();
 
 var app = builder.Build();
 
+app.UseHttpMetrics();
+
 // DB init on startup
 await app.Services.GetRequiredService<DatabaseInitializer>().InitializeAsync(CancellationToken.None);
+
+// Metrics endpoint
+app.MapMetrics();
 
 // Minimal API endpoints
 app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "alert-service" }));

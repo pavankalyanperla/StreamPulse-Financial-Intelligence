@@ -12,6 +12,7 @@ import psycopg2
 from fastapi import FastAPI, HTTPException
 from kafka import KafkaConsumer, KafkaProducer
 from kafka.errors import KafkaError
+from prometheus_client import Counter, Gauge, make_asgi_app
 from pydantic import BaseModel, ConfigDict, Field
 from sklearn.preprocessing import MinMaxScaler
 
@@ -38,6 +39,18 @@ CONSUMER_GROUP = "forecasting-group"
 SEQUENCE_LENGTH = 10
 MIN_TRAIN_CANDLES = 15
 BUFFER_MAXLEN = 50
+
+# ── Prometheus metrics ────────────────────────────────────────────────────────
+FORECASTS_PUBLISHED = Counter(
+    "streampulse_forecasts_published_total",
+    "Total forecasts published",
+    ["symbol"],
+)
+FORECAST_CONFIDENCE = Gauge(
+    "streampulse_forecast_confidence",
+    "Forecast confidence per symbol",
+    ["symbol"],
+)
 
 
 # ── Models ────────────────────────────────────────────────────────────────────
@@ -230,6 +243,8 @@ def _publish_forecast(forecast: PriceForecast) -> None:
     try:
         producer.send(PRODUCER_TOPIC, key=forecast.symbol, value=forecast.model_dump())
         producer.flush()
+        FORECASTS_PUBLISHED.labels(symbol=forecast.symbol).inc()
+        FORECAST_CONFIDENCE.labels(symbol=forecast.symbol).set(forecast.confidence)
     except KafkaError as exc:
         logger.error("Failed to publish forecast for %s: %s", forecast.symbol, exc)
 
@@ -306,6 +321,10 @@ async def lifespan(app: FastAPI):
 # ── App ───────────────────────────────────────────────────────────────────────
 
 app = FastAPI(title="StreamPulse Forecasting Service", lifespan=lifespan)
+
+# Mount Prometheus metrics endpoint
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
 
 
 @app.get("/health")

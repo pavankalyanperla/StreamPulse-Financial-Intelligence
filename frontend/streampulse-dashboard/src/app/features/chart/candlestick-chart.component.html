@@ -1,0 +1,46 @@
+<div class="chart-container">
+  <div class="chart-header">
+    <p-select
+      [options]="symbols"
+      [(ngModel)]="selectedSymbol"
+      (onChange)="onSymbolChange($event.value)"
+      styleClass="symbol-dropdown">
+    </p-select>
+
+    <div class="timeframe-buttons">
+      @for (tf of timeframes; track tf.label) {
+        <button
+          [class.active]="tf.label === selectedTimeframe.label"
+          (click)="onTimeframeChange(tf)"
+          class="tf-btn">
+          {{ tf.label }}
+        </button>
+      }
+    </div>
+
+    @if (latestCandle) {
+      <span class="symbol-price">
+        {{ selectedSymbol }} — C: ${{ latestCandle.closePrice | number:'1.2-2' }}
+      </span>
+    }
+  </div>
+
+  <div class="canvas-wrapper">
+    @if (isLoading) {
+      <div class="chart-skeleton">
+        <app-skeleton width="100%" height="100%"></app-skeleton>
+      </div>
+    }
+    <canvas #chartCanvas [style.visibility]="isLoading ? 'hidden' : 'visible'"></canvas>
+  </div>
+
+  @if (latestCandle) {
+    <div class="stats-bar">
+      <span>O: <b>{{ latestCandle.openPrice | number:'1.2-2' }}</b></span>
+      <span>H: <b class="high">{{ latestCandle.highPrice | number:'1.2-2' }}</b></span>
+      <span>L: <b class="low">{{ latestCandle.lowPrice | number:'1.2-2' }}</b></span>
+      <span>C: <b>{{ latestCandle.closePrice | number:'1.2-2' }}</b></span>
+      <span>Vol: <b>{{ latestCandle.totalVolume | number }}</b></span>
+    </div>
+  }
+</div>

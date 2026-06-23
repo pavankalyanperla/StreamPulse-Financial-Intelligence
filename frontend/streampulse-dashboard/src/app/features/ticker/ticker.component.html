@@ -1,0 +1,49 @@
+<div class="ticker-wrapper">
+  <div class="ticker-grid">
+    @if (isLoading) {
+      @for (_ of skeletonRange; track $index) {
+        <div class="ticker-card skeleton-card">
+          <app-skeleton width="60px" height="14px"></app-skeleton>
+          <app-skeleton width="120px" height="36px"></app-skeleton>
+          <app-skeleton width="80px" height="14px"></app-skeleton>
+          <app-skeleton width="100%" height="12px"></app-skeleton>
+          <app-skeleton width="100%" height="12px"></app-skeleton>
+        </div>
+      }
+    } @else {
+      @for (symbol of symbols; track symbol) {
+        @let tick = getTick(symbol);
+        <div
+          class="ticker-card"
+          [class.flash-up]="flashState[symbol] === 'up'"
+          [class.flash-down]="flashState[symbol] === 'down'"
+        >
+          <div class="card-symbol">{{ symbol }}</div>
+
+          @if (tick) {
+            <div class="card-price">${{ tick.price | number:'1.2-2' }}</div>
+
+            <div class="card-change" [class.up]="tick.changePct >= 0" [class.down]="tick.changePct < 0">
+              {{ tick.changePct >= 0 ? '▲' : '▼' }}&nbsp;{{ (tick.changePct | number:'1.2-2') }}%
+            </div>
+
+            <div class="card-meta">
+              <span class="label">Vol</span>
+              <span>{{ tick.volume | number }}</span>
+            </div>
+
+            <div class="card-meta">
+              <span class="label">Updated</span>
+              <span>{{ tick.timestamp | date:'HH:mm:ss' }}</span>
+            </div>
+          } @else {
+            <div class="card-price placeholder">--</div>
+            <div class="card-change placeholder">--</div>
+            <div class="card-meta placeholder"><span class="label">Vol</span><span>--</span></div>
+            <div class="card-meta placeholder"><span class="label">Updated</span><span>--</span></div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

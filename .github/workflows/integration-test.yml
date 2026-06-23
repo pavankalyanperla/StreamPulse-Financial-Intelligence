@@ -1,0 +1,50 @@
+name: Integration Tests
+
+# Manual trigger only — tests require a live Docker stack running on the host.
+on:
+  workflow_dispatch:
+
+jobs:
+  integration-tests:
+    name: Run Integration Tests
+    runs-on: self-hosted   # must be a runner with Docker + .NET 10 pre-installed
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Verify Docker stack is running
+        run: |
+          RUNNING=$(docker ps --format "{{.Names}}" | wc -l)
+          echo "Containers running: $RUNNING"
+          if [ "$RUNNING" -lt 12 ]; then
+            echo "ERROR: Expected at least 12 containers. Start the stack with: docker compose up -d"
+            exit 1
+          fi
+
+      - name: Restore packages
+        run: dotnet restore tests/integration/StreamPulse.Integration.Tests/StreamPulse.Integration.Tests.csproj
+
+      - name: Build test project
+        run: dotnet build tests/integration/StreamPulse.Integration.Tests/StreamPulse.Integration.Tests.csproj --no-restore --configuration Release
+
+      - name: Run integration tests
+        run: |
+          dotnet test tests/integration/StreamPulse.Integration.Tests/StreamPulse.Integration.Tests.csproj \
+            --no-build \
+            --configuration Release \
+            --logger "console;verbosity=normal" \
+            --logger "trx;LogFileName=integration-results.trx" \
+            --results-directory ./TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-results
+          path: ./TestResults/*.trx

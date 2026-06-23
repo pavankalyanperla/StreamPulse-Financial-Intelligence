@@ -1,0 +1,33 @@
+<div class="alert-feed">
+  @let alerts = (signalR.alertHistory$ | async) ?? [];
+
+  <div class="feed-header">
+    <span class="feed-title">⚠ Live Alerts</span>
+    <span class="alert-count">{{ alerts.length }} alerts</span>
+  </div>
+
+  <div class="feed-scroll">
+    @for (alert of alerts; track alert.timestamp + alert.symbol) {
+      <div class="alert-item" [ngClass]="'severity-' + alert.severity.toLowerCase()">
+        <div class="alert-top">
+          <span class="alert-symbol">{{ alert.symbol }}</span>
+          <span class="alert-severity">{{ alert.severity }}</span>
+          <span class="alert-time">{{ formatTime(alert.timestamp) }}</span>
+        </div>
+        <div class="alert-bottom">
+          <span class="alert-type">{{ alert.alertType }}</span>
+          <span class="alert-price">${{ alert.price | number:'1.2-2' }}</span>
+          <span class="alert-change"
+            [class.positive]="alert.changePct > 0"
+            [class.negative]="alert.changePct < 0">
+            {{ alert.changePct > 0 ? '+' : '' }}{{ alert.changePct | number:'1.2-2' }}%
+          </span>
+        </div>
+      </div>
+    }
+
+    @if (alerts.length === 0) {
+      <div class="no-alerts">Waiting for alerts...</div>
+    }
+  </div>
+</div>

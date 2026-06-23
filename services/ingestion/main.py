@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from fastapi import FastAPI
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
+from prometheus_client import Counter, Gauge, make_asgi_app
 from pydantic import BaseModel
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -28,6 +29,18 @@ BASE_PRICES: dict[str, float] = {
 last_prices: dict[str, float] = dict(BASE_PRICES)
 
 producer: KafkaProducer | None = None
+
+# ── Prometheus metrics ────────────────────────────────────────────────────────
+TICKS_PUBLISHED = Counter(
+    "streampulse_ticks_published_total",
+    "Total ticks published to Kafka",
+    ["symbol"],
+)
+CURRENT_PRICE = Gauge(
+    "streampulse_current_price",
+    "Current price per symbol",
+    ["symbol"],
+)
 
 
 class Tick(BaseModel):
@@ -81,6 +94,8 @@ async def tick_loop() -> None:
         for symbol in SYMBOLS:
             tick = generate_tick(symbol)
             publish_tick(tick)
+            TICKS_PUBLISHED.labels(symbol=symbol).inc()
+            CURRENT_PRICE.labels(symbol=symbol).set(tick.price)
             sign = "+" if tick.change_pct >= 0 else ""
             logger.info(
                 f"[TICK] {tick.symbol:<5} | ${tick.price:<9} | vol: {tick.volume:<5} | {sign}{tick.change_pct}%"
@@ -91,6 +106,10 @@ async def tick_loop() -> None:
 
 
 app = FastAPI(title="StreamPulse Ingestion Service")
+
+# Mount Prometheus metrics endpoint
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
 
 
 @app.on_event("startup")

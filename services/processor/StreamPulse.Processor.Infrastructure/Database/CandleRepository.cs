@@ -57,6 +57,44 @@ public sealed class CandleRepository : ICandleRepository
             candle.Symbol, candle.CandleTime);
     }
 
+    private const string RecentSql = """
+        SELECT symbol, candle_time, open_price, high_price, low_price, close_price, total_volume, tick_count
+        FROM ohlcv_candles
+        WHERE symbol = @symbol
+        ORDER BY candle_time DESC
+        LIMIT @limit
+        """;
+
+    public async Task<IEnumerable<OhlcvCandle>> GetRecentCandlesAsync(
+        string symbol, int limit, CancellationToken cancellationToken)
+    {
+        await using var conn = new NpgsqlConnection(_connectionString);
+        await conn.OpenAsync(cancellationToken);
+
+        await using var cmd = new NpgsqlCommand(RecentSql, conn);
+        cmd.Parameters.AddWithValue("symbol", symbol);
+        cmd.Parameters.AddWithValue("limit",  limit);
+
+        var results = new List<OhlcvCandle>();
+        await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+        while (await reader.ReadAsync(cancellationToken))
+        {
+            results.Add(new OhlcvCandle
+            {
+                Symbol      = reader.GetString(0),
+                CandleTime  = new DateTimeOffset(reader.GetDateTime(1), TimeSpan.Zero),
+                OpenPrice   = reader.GetDecimal(2),
+                HighPrice   = reader.GetDecimal(3),
+                LowPrice    = reader.GetDecimal(4),
+                ClosePrice  = reader.GetDecimal(5),
+                TotalVolume = reader.GetInt64(6),
+                TickCount   = reader.GetInt32(7),
+            });
+        }
+        results.Reverse(); // DESC → ASC for chart
+        return results;
+    }
+
     public async Task<IEnumerable<OhlcvCandle>> GetCandlesAsync(
         string symbol, DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken)
     {

@@ -1,0 +1,38 @@
+<div class="sentiment-panel">
+  <div class="panel-header">
+    <span class="panel-title">📰 News Sentiment</span>
+    @if (lastUpdated) {
+      <span class="last-updated">{{ lastUpdated | date:'HH:mm:ss' }}</span>
+    }
+  </div>
+
+  <div class="sentiment-list">
+    @for (item of sentimentList; track item.symbol) {
+      <div class="sentiment-row">
+        <span class="sent-symbol">{{ item.symbol }}</span>
+
+        <div class="score-bar-container">
+          <div class="score-bar"
+            [style.width.%]="getBarWidth(item.score)"
+            [ngClass]="item.label.toLowerCase()">
+          </div>
+        </div>
+
+        <span class="sent-score" [ngClass]="item.label.toLowerCase()">
+          {{ item.score > 0 ? '+' : '' }}{{ item.score | number:'1.2-2' }}
+        </span>
+
+        <span class="sent-label" [ngClass]="item.label.toLowerCase()">
+          {{ item.label }}
+        </span>
+      </div>
+    }
+  </div>
+
+  @if (selectedSentiment) {
+    <div class="latest-headline">
+      <p class="headline-text">"{{ selectedSentiment.latestHeadline }}"</p>
+      <span class="headline-source">{{ selectedSentiment.symbol }}</span>
+    </div>
+  }
+</div>

@@ -1,5 +1,6 @@
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using Prometheus;
 using StackExchange.Redis;
 using StreamPulse.Gateway.Application.Interfaces;
 using StreamPulse.Gateway.Application.Settings;
@@ -48,9 +49,13 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 app.UseCors();
+app.UseHttpMetrics();
+
+// Metrics endpoint — before Ocelot branch so it isn't proxied
+app.MapMetrics();
 
 // Direct endpoints handled before Ocelot branch
-app.MapHub<StockHub>("/hubs/stock");
+app.MapHub<StockHub>("/hubs/stocks");
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok", service = "gateway" }));
 

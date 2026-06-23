@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using Prometheus;
 using StreamPulse.Gateway.Application.Interfaces;
 using StreamPulse.Gateway.Application.Models;
 using StreamPulse.Gateway.Hubs;
@@ -10,6 +11,11 @@ public class StockBroadcaster : IStockBroadcaster
     private readonly IHubContext<StockHub, IStockHub> _hub;
     private readonly ILogger<StockBroadcaster> _logger;
 
+    private static readonly Counter _ticksBroadcast = Metrics.CreateCounter(
+        "streampulse_ticks_broadcast_total",
+        "Ticks broadcast via SignalR",
+        new CounterConfiguration { LabelNames = new[] { "symbol" } });
+
     public StockBroadcaster(IHubContext<StockHub, IStockHub> hub, ILogger<StockBroadcaster> logger)
     {
         _hub = hub;
@@ -20,6 +26,7 @@ public class StockBroadcaster : IStockBroadcaster
     {
         await _hub.Clients.Group(tick.Symbol).ReceiveTick(tick);
         await _hub.Clients.Group("ALL_SYMBOLS").ReceiveTick(tick);
+        _ticksBroadcast.WithLabels(tick.Symbol).Inc();
     }
 
     public async Task BroadcastCandleAsync(OhlcvCandle candle, CancellationToken ct = default)

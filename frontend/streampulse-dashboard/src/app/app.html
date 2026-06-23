@@ -1,0 +1,22 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="sp-toolbar">
+  <span class="sp-logo">⚡ StreamPulse</span>
+  <div class="sp-toolbar-right">
+    <span class="sp-badge"
+      [ngClass]="{
+        'badge-live':         (signalR.connectionState$ | async) === 'Connected',
+        'badge-reconnecting': (signalR.connectionState$ | async) === 'Reconnecting',
+        'badge-disconnected': (signalR.connectionState$ | async) === 'Disconnected'
+      }">
+      {{ (signalR.connectionState$ | async) === 'Connected' ? '● LIVE' :
+         (signalR.connectionState$ | async) === 'Reconnecting' ? '◌ RECONNECTING' :
+         '○ DISCONNECTED' }}
+    </span>
+    <button class="theme-toggle" (click)="toggleTheme()" [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'">
+      {{ isDarkMode ? '☀ Light' : '🌙 Dark' }}
+    </button>
+  </div>
+</div>
+
+<router-outlet />

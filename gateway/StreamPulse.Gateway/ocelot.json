@@ -41,6 +41,13 @@
       "DownstreamHostAndPorts": [{ "Host": "streampulse-ingestion", "Port": 8001 }],
       "UpstreamPathTemplate": "/api/ingestion/{everything}",
       "UpstreamHttpMethod": [ "GET" ]
+    },
+    {
+      "DownstreamPathTemplate": "/candles/{symbol}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [{ "Host": "streampulse-processor", "Port": 5100 }],
+      "UpstreamPathTemplate": "/api/candles/{symbol}",
+      "UpstreamHttpMethod": [ "GET" ]
     }
   ],
   "GlobalConfiguration": {

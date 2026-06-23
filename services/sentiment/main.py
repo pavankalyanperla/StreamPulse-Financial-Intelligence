@@ -9,6 +9,7 @@ import httpx
 import numpy as np
 import psycopg2
 from fastapi import FastAPI, HTTPException
+from prometheus_client import Counter, Gauge, make_asgi_app
 from pydantic import BaseModel
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
@@ -24,6 +25,17 @@ DATABASE_URL = os.getenv(
 SYMBOLS = [s.strip() for s in os.getenv("SYMBOLS", "AAPL,GOOGL,MSFT,INFY,TCS").split(",")]
 NEWSAPI_KEY = os.environ.get("NEWSAPI_KEY", "")
 REFRESH_INTERVAL = 300
+
+# ── Prometheus metrics ────────────────────────────────────────────────────────
+SENTIMENT_SCORE = Gauge(
+    "streampulse_sentiment_score",
+    "Sentiment score per symbol",
+    ["symbol"],
+)
+SENTIMENT_REFRESHES = Counter(
+    "streampulse_sentiment_refreshes_total",
+    "Total sentiment refresh cycles",
+)
 
 
 # ── Models ────────────────────────────────────────────────────────────────────
@@ -289,6 +301,7 @@ def refresh_symbol(symbol: str) -> Optional[SymbolSentiment]:
         last_updated=_now_iso(),
     )
     sentiment_cache[symbol] = sentiment
+    SENTIMENT_SCORE.labels(symbol=symbol).set(avg_score)
 
     logger.info(
         '[SENTIMENT] %s | score: %+.4f | %s | "%s"',
@@ -302,6 +315,7 @@ async def _background_refresh() -> None:
         loop = asyncio.get_event_loop()
         for symbol in SYMBOLS:
             await loop.run_in_executor(None, refresh_symbol, symbol)
+        SENTIMENT_REFRESHES.inc()
         await asyncio.sleep(REFRESH_INTERVAL)
 
 
@@ -319,6 +333,10 @@ async def lifespan(app: FastAPI):
 # ── App ───────────────────────────────────────────────────────────────────────
 
 app = FastAPI(title="StreamPulse Sentiment Service", lifespan=lifespan)
+
+# Mount Prometheus metrics endpoint
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
 
 
 @app.get("/health")

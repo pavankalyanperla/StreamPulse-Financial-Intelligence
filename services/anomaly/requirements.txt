@@ -4,3 +4,4 @@ kafka-python
 scikit-learn
 numpy
 pydantic
+prometheus-client

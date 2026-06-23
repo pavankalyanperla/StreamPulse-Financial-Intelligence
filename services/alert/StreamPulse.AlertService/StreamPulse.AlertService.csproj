@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="prometheus-net.AspNetCore" Version="8.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\StreamPulse.AlertService.Application\StreamPulse.AlertService.Application.csproj" />
     <ProjectReference Include="..\StreamPulse.AlertService.Infrastructure\StreamPulse.AlertService.Infrastructure.csproj" />
   </ItemGroup>

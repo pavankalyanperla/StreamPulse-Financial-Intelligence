@@ -11,6 +11,7 @@ import numpy as np
 from fastapi import FastAPI
 from kafka import KafkaConsumer, KafkaProducer
 from kafka.errors import KafkaError
+from prometheus_client import Counter, Gauge, make_asgi_app
 from pydantic import BaseModel
 from sklearn.ensemble import IsolationForest
 
@@ -24,6 +25,23 @@ CONSUMER_GROUP = "anomaly-group"
 BUFFER_SIZE = 100
 MIN_TRAIN_TICKS = 20
 RETRAIN_EVERY = 50
+
+# ── Prometheus metrics ────────────────────────────────────────────────────────
+TICKS_SCORED = Counter(
+    "streampulse_ticks_scored_total",
+    "Total ticks scored",
+    ["symbol"],
+)
+ANOMALIES_DETECTED = Counter(
+    "streampulse_anomalies_detected_total",
+    "Total anomalies detected",
+    ["symbol", "severity"],
+)
+MODELS_TRAINED = Gauge(
+    "streampulse_models_trained",
+    "Model trained flag",
+    ["symbol"],
+)
 
 
 # ── Models ──────────────────────────────────────────────────────────────────
@@ -77,6 +95,7 @@ class AnomalyDetector:
         state.model.fit(X)
         state.is_trained = True
         state.ticks_since_train = 0
+        MODELS_TRAINED.labels(symbol=symbol).set(1.0)
         logger.info("[MODEL] %s Isolation Forest trained on %d ticks", symbol, len(state.buffer))
 
     def detect(self, tick: StockTick) -> AnomalyAlert | None:
@@ -203,8 +222,10 @@ async def consume_and_detect() -> None:
         for msg in consumer:
             try:
                 tick = StockTick(**msg.value)
+                TICKS_SCORED.labels(symbol=tick.symbol).inc()
                 alert = detector.detect(tick)
                 if alert:
+                    ANOMALIES_DETECTED.labels(symbol=alert.symbol, severity=alert.severity).inc()
                     _publish_alert(alert)
                     logger.info(
                         "[ALERT] %s %s — %s | $%.2f | %+.4f%% | score: %.3f",
@@ -230,6 +251,10 @@ async def lifespan(app: FastAPI):
 # ── App ───────────────────────────────────────────────────────────────────────
 
 app = FastAPI(title="StreamPulse Anomaly Detection Service", lifespan=lifespan)
+
+# Mount Prometheus metrics endpoint
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
 
 
 @app.get("/health")

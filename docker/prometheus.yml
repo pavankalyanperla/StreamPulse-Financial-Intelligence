@@ -1,0 +1,39 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'streampulse-ingestion'
+    static_configs:
+      - targets: ['streampulse-ingestion:8001']
+    metrics_path: '/metrics'
+
+  - job_name: 'streampulse-anomaly'
+    static_configs:
+      - targets: ['streampulse-anomaly:8003']
+    metrics_path: '/metrics'
+
+  - job_name: 'streampulse-forecasting'
+    static_configs:
+      - targets: ['streampulse-forecasting:8002']
+    metrics_path: '/metrics'
+
+  - job_name: 'streampulse-sentiment'
+    static_configs:
+      - targets: ['streampulse-sentiment:8004']
+    metrics_path: '/metrics'
+
+  - job_name: 'streampulse-processor'
+    static_configs:
+      - targets: ['streampulse-processor:5100']
+    metrics_path: '/metrics'
+
+  - job_name: 'streampulse-alert'
+    static_configs:
+      - targets: ['streampulse-alert:5200']
+    metrics_path: '/metrics'
+
+  - job_name: 'streampulse-gateway'
+    static_configs:
+      - targets: ['streampulse-gateway:5000']
+    metrics_path: '/metrics'

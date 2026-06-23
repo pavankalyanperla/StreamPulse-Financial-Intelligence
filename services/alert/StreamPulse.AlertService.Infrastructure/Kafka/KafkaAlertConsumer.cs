@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
+using Prometheus;
 using StreamPulse.AlertService.Application.Interfaces;
 using StreamPulse.AlertService.Application.Models;
 using StreamPulse.AlertService.Application.Settings;
@@ -13,6 +14,15 @@ public class KafkaAlertConsumer : IKafkaAlertConsumer
     private readonly IAlertRepository _repository;
     private readonly IEmailNotifier _emailNotifier;
     private readonly ILogger<KafkaAlertConsumer> _logger;
+
+    private static readonly Counter _alertsReceived = Metrics.CreateCounter(
+        "streampulse_alerts_received_total",
+        "Alerts received",
+        new CounterConfiguration { LabelNames = new[] { "symbol", "severity" } });
+
+    private static readonly Counter _emailsSent = Metrics.CreateCounter(
+        "streampulse_emails_sent_total",
+        "Alert emails sent");
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -71,10 +81,15 @@ public class KafkaAlertConsumer : IKafkaAlertConsumer
                     "[ALERT] Received {Severity} {AlertType} — {Symbol} | ${Price} | {ChangePct:+0.00;-0.00}%",
                     alert.Severity, alert.AlertType, alert.Symbol, alert.Price, alert.ChangePct);
 
+                _alertsReceived.WithLabels(alert.Symbol, alert.Severity).Inc();
+
                 await _repository.SaveAlertAsync(alert, ct);
 
                 if (alert.Severity.Equals("HIGH", StringComparison.OrdinalIgnoreCase))
+                {
                     await _emailNotifier.SendAlertEmailAsync(alert, ct);
+                    _emailsSent.Inc();
+                }
             }
             catch (OperationCanceledException)
             {

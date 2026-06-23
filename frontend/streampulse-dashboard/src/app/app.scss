@@ -1,0 +1,66 @@
+.sp-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--sp-bg-secondary);
+  border-bottom: 1px solid var(--sp-border);
+  padding: 0.6rem 1.5rem;
+  transition: background 0.3s ease;
+}
+
+.sp-logo {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--sp-text-primary);
+  letter-spacing: 0.04em;
+}
+
+.sp-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sp-badge {
+  display: inline-block;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+
+  &.badge-live {
+    background-color: rgba(0, 200, 100, 0.15);
+    color: #00ff88;
+    border: 1px solid rgba(0, 255, 136, 0.4);
+  }
+
+  &.badge-reconnecting {
+    background-color: rgba(255, 165, 0, 0.15);
+    color: #ffaa00;
+    border: 1px solid rgba(255, 165, 0, 0.4);
+  }
+
+  &.badge-disconnected {
+    background-color: rgba(255, 68, 68, 0.12);
+    color: #ff4444;
+    border: 1px solid rgba(255, 68, 68, 0.4);
+  }
+}
+
+.theme-toggle {
+  background: transparent;
+  border: 1px solid var(--sp-border);
+  color: var(--sp-text-secondary);
+  padding: 0.3rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+
+  &:hover {
+    border-color: var(--sp-accent);
+    color: var(--sp-accent);
+  }
+}

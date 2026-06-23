@@ -1,0 +1,49 @@
+@import 'primeicons/primeicons.css';
+
+/* ── CSS Variables ───────────────────────────────────────────── */
+:root.dark-mode {
+  --sp-bg-primary:    #0a0a1a;
+  --sp-bg-card:       #0d0d1a;
+  --sp-bg-secondary:  #12122a;
+  --sp-text-primary:  #ffffff;
+  --sp-text-secondary:#888899;
+  --sp-border:        #1a1a3a;
+  --sp-accent:        #00b4d8;
+  color-scheme: dark;
+}
+
+:root.light-mode {
+  --sp-bg-primary:    #f0f2f5;
+  --sp-bg-card:       #ffffff;
+  --sp-bg-secondary:  #e8eaf0;
+  --sp-text-primary:  #1a1a2e;
+  --sp-text-secondary:#555577;
+  --sp-border:        #d0d4e0;
+  --sp-accent:        #0077b6;
+  color-scheme: light;
+}
+
+/* ── Reset ───────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+app-root {
+  height: 100%;
+  display: block;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  background: var(--sp-bg-primary);
+  color: var(--sp-text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
+}

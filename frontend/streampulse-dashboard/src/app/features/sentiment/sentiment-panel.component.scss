@@ -1,0 +1,106 @@
+.sentiment-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--sp-bg-card);
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--sp-border);
+  flex-shrink: 0;
+}
+
+.panel-title {
+  color: var(--sp-accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.last-updated { color: var(--sp-text-secondary); font-size: 0.7rem; }
+
+.sentiment-list {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.sentiment-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sent-symbol {
+  width: 44px;
+  font-weight: 700;
+  color: var(--sp-text-primary);
+  font-size: 0.8rem;
+}
+
+.score-bar-container {
+  flex: 1;
+  height: 6px;
+  background: var(--sp-border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.score-bar {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+  min-width: 2px;
+
+  &.bullish { background: #00ff88; }
+  &.neutral  { background: #00b4d8; }
+  &.bearish  { background: #ff4444; }
+}
+
+.sent-score {
+  width: 44px;
+  text-align: right;
+  font-size: 0.75rem;
+  font-family: monospace;
+
+  &.bullish { color: #00ff88; }
+  &.neutral  { color: #00b4d8; }
+  &.bearish  { color: #ff4444; }
+}
+
+.sent-label {
+  width: 54px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: center;
+
+  &.bullish { color: #00ff88; }
+  &.neutral  { color: var(--sp-text-secondary); }
+  &.bearish  { color: #ff4444; }
+}
+
+.latest-headline {
+  margin: 0 16px 16px;
+  padding: 10px 12px;
+  background: var(--sp-bg-secondary);
+  border-radius: 6px;
+  border-left: 3px solid var(--sp-accent);
+  flex-shrink: 0;
+}
+
+.headline-text {
+  color: var(--sp-text-secondary);
+  font-size: 0.75rem;
+  font-style: italic;
+  margin: 0 0 4px;
+  line-height: 1.4;
+}
+
+.headline-source { color: var(--sp-text-secondary); opacity: 0.6; font-size: 0.7rem; }

@@ -2,6 +2,7 @@ using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Prometheus;
 using StreamPulse.Processor.Application.Interfaces;
 using StreamPulse.Processor.Application.Models;
 
@@ -15,6 +16,16 @@ public sealed class KafkaConsumerService : IKafkaConsumerService
     private readonly ICandleRepository _repository;
     private readonly string _bootstrapServers;
     private readonly string _consumerGroup;
+
+    private static readonly Counter _ticksConsumed = Metrics.CreateCounter(
+        "streampulse_ticks_consumed_total",
+        "Ticks consumed from Kafka",
+        new CounterConfiguration { LabelNames = new[] { "symbol" } });
+
+    private static readonly Counter _candlesPublished = Metrics.CreateCounter(
+        "streampulse_candles_published_total",
+        "Candles published to Kafka",
+        new CounterConfiguration { LabelNames = new[] { "symbol" } });
 
     private static readonly JsonSerializerOptions _jsonOptions = new()
     {
@@ -66,6 +77,7 @@ public sealed class KafkaConsumerService : IKafkaConsumerService
                     if (tick is not null)
                     {
                         _aggregator.AddTick(tick);
+                        _ticksConsumed.WithLabels(tick.Symbol).Inc();
                         _logger.LogInformation(
                             "[CONSUMED] {Symbol} | ${Price} | {Timestamp:u}",
                             tick.Symbol, tick.Price, tick.Timestamp);
@@ -85,6 +97,7 @@ public sealed class KafkaConsumerService : IKafkaConsumerService
                             candle.TotalVolume, candle.TickCount);
 
                         await _producer.PublishCandleAsync(candle, cancellationToken);
+                        _candlesPublished.WithLabels(candle.Symbol).Inc();
 
                         try
                         {

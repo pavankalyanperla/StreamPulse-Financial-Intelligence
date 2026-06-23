@@ -1,0 +1,83 @@
+.chart-container {
+  background: var(--sp-bg-card);
+  border: 1px solid var(--sp-border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  transition: background 0.3s ease;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.timeframe-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.tf-btn {
+  background: var(--sp-bg-secondary);
+  color: var(--sp-text-secondary);
+  border: 1px solid var(--sp-border);
+  border-radius: 4px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+
+  &.active {
+    border-color: var(--sp-accent);
+    color: var(--sp-accent);
+    background: rgba(0, 180, 216, 0.1);
+  }
+
+  &:hover:not(.active) {
+    border-color: var(--sp-text-secondary);
+    color: var(--sp-text-primary);
+  }
+}
+
+.canvas-wrapper {
+  position: relative;
+  height: 380px;
+  width: 100%;
+
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+.chart-skeleton {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.stats-bar {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: var(--sp-text-secondary);
+
+  b { color: var(--sp-text-primary); }
+  .high { color: #00ff88; }
+  .low  { color: #ff4444; }
+}
+
+.symbol-price {
+  color: var(--sp-text-primary);
+  font-weight: 600;
+  margin-left: auto;
+  font-size: 0.9rem;
+}
